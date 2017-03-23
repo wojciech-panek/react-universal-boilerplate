@@ -29,6 +29,7 @@ module.exports = require('./webpack.base.babel')({
     'eventsource-polyfill',
     'react-hot-loader/patch',
     'webpack-hot-middleware/client?reload=true',
+    path.join(process.cwd(), 'app/server.js'),
     path.join(process.cwd(), 'app/main.js'), // Start with app/main.js
   ],
 
