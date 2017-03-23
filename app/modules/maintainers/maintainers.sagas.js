@@ -1,5 +1,4 @@
-import { call, put, fork } from 'redux-saga/effects';
-import { takeLatest } from 'redux-saga';
+import { call, put, fork, takeLatest } from 'redux-saga/effects';
 import { stringify } from 'query-string';
 
 import request from '../../utils/request';
@@ -21,7 +20,7 @@ export function* fetchMaintainersSaga(action) {
 
 export function* getMaintainersSaga() {
   try {
-    yield call(takeLatest, ACTION_TYPES.GET, fetchMaintainersSaga);
+    yield takeLatest(ACTION_TYPES.GET, fetchMaintainersSaga);
   } catch (e) {
     yield put(getMaintainersError(e));
   }

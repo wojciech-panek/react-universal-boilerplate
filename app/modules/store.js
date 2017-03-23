@@ -27,17 +27,19 @@ export default function configureStore(initialState = {}, history) {
       return state;
     };
 
-    middlewares.push(createLogger({ stateTransformer }));
+    if (__CLIENT__) {
+      middlewares.push(createLogger({ stateTransformer }));
 
-    const getDebugSessionKey = () => {
-      const matches = window.location.href.match(/[?&]debug_session=([^&#]+)\b/);
-      return (matches && matches.length > 0) ? matches[1] : null;
-    };
+      const getDebugSessionKey = () => {
+        const matches = window.location.href.match(/[?&]debug_session=([^&#]+)\b/);
+        return (matches && matches.length > 0) ? matches[1] : null;
+      };
 
-    Array.prototype.push.apply(enhancers, [
-      require('../utils/devtools.component').instrument(),
-      persistState(getDebugSessionKey(), (state) => fromJS(state)),
-    ]);
+      Array.prototype.push.apply(enhancers, [
+        require('../utils/devtools.component').default.instrument(),
+        persistState(getDebugSessionKey(), (state) => fromJS(state)),
+      ]);
+    }
   }
 
   const store = createStore(

@@ -25,6 +25,9 @@ import { selectLocationState } from './modules/router/router.selectors';
 
 import configureStore from './modules/store';
 
+// Import utils
+import ensureIntlSupport from './utils/ensureIntlSupport';
+
 // Import routes
 import routes from './routes';
 
@@ -59,7 +62,7 @@ const history = syncHistoryWithStore(browserHistory, store, {
 });
 
 if (process.env.NODE_ENV) {
-  const DevToolsComponent = require('./utils/devtools.component');
+  const DevToolsComponent = require('./utils/devtools.component').default;
   const devToolsRoot = window.document.createElement('div');
 
   window.document.body.appendChild(devToolsRoot);
@@ -89,22 +92,8 @@ const render = () => {
   );
 };
 
-// Chunked polyfill for browsers without Intl support
-if (!window.Intl) {
-  (new Promise((resolve) => {
-    resolve(require('intl'));
-  }))
-    .then(() => Promise.all([
-      require('intl/locale-data/jsonp/en.js'),
-      require('intl/locale-data/jsonp/de.js'),
-    ]))
-    .then(() => render())
-    .catch((err) => {
-      throw err;
-    });
-} else {
-  render();
-}
+ensureIntlSupport()
+  .then(render);
 
 /* istanbul ignore next */
 if (module.hot) {

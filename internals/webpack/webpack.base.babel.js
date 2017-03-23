@@ -8,7 +8,27 @@ const webpack = require('webpack');
 const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 const WebpackAppversionPlugin = require('webpack-appversion-plugin');
 const SpritesmithPlugin = require('webpack-spritesmith');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const AssetsPlugin = require('assets-webpack-plugin');
+const assetsPluginInstance = new AssetsPlugin({
+  path: path.join(process.cwd(), 'server', 'generated'),
+  filename: 'assets.json',
+});
 /* eslint-enable import/no-extraneous-dependencies */
+
+const chalk = require('chalk');
+
+const debug = console.log.bind(console, chalk.cyan('[base service]'));
+debug(chalk.gray(JSON.stringify(assetsPluginInstance)));
+
+const extractVendorCSSPlugin = new ExtractTextPlugin('vendor.[contenthash].css');
+
+const isBuildingDll = Boolean(process.env.BUILDING_DLL);
+const vendorCSSLoaders = extractVendorCSSPlugin.extract({
+  fallback: 'style-loader',
+  loader: 'css-loader',
+});
 
 const buildSpritePlugin = (name) => new SpritesmithPlugin({
   retina: '-2x',
@@ -49,7 +69,7 @@ module.exports = (options) => {
         // So, no need for ExtractTextPlugin here.
         test: /\.css$/,
         include: /node_modules/,
-        loaders: ['style-loader', 'css-loader'],
+        loaders: vendorCSSLoaders,
       }, {
         test: /\.scss$/,
         use: [{
@@ -93,25 +113,34 @@ module.exports = (options) => {
         },
       }],
     },
-    plugins: options.plugins.concat([
-      new FaviconsWebpackPlugin(path.join(process.cwd(), 'app', 'images', 'favicon.png')),
-      buildSpritePlugin('mobile'),
-      buildSpritePlugin('desktop'),
-      new webpack.ProvidePlugin({
-        // make fetch available
-        fetch: 'exports-loader?self.fetch!whatwg-fetch',
-      }),
+    plugins: options.plugins
+      .concat([
+        new CopyWebpackPlugin([{
+          from: path.join(process.cwd(), 'app', 'fixtures'),
+          to: 'fixtures',
+        }]),
+        new FaviconsWebpackPlugin(path.join(process.cwd(), 'app', 'images', 'favicon.png')),
+        buildSpritePlugin('mobile'),
+        buildSpritePlugin('desktop'),
+        extractVendorCSSPlugin,
+        new webpack.ProvidePlugin({
+          // make fetch available
+          fetch: 'exports-loader?self.fetch!whatwg-fetch',
+        }),
 
-      // Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
-      // inside your code for any environment checks; UglifyJS will automatically
-      // drop any unreachable code.
-      new webpack.DefinePlugin({
-        'process.env': {
-          NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-        },
-      }),
-      new webpack.NamedModulesPlugin(),
-    ]),
+        // Always expose NODE_ENV to webpack, in order to use `process.env.NODE_ENV`
+        // inside your code for any environment checks; UglifyJS will automatically
+        // drop any unreachable code.
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+          },
+          '__CLIENT__': true,
+          '__SERVER__': false,
+        }),
+        new webpack.NamedModulesPlugin(),
+      ])
+      .concat(isBuildingDll ? [] : [assetsPluginInstance]),
     resolve: {
       alias: {
         'env-config': path.join(process.cwd(), 'app', 'environment', `${process.env.NODE_ENV}.js`),
