@@ -1,6 +1,4 @@
 /* eslint-disable global-require */
-require('isomorphic-fetch');
-
 const assets = require('../generated/assets.json'); // eslint-disable-line import/no-unresolved
 
 const serverEntry = require('../generated/server'); // eslint-disable-line import/no-unresolved
@@ -8,7 +6,9 @@ const renderAppToStringAtLocation = serverEntry.renderAppToStringAtLocation;
 const appLocales = serverEntry.appLocales;
 
 function extractWebpackDllNamesFromPackage() {
-  if (process.env.NODE_ENV === 'production') return [];
+  if (process.env.NODE_ENV === 'production') {
+    return [];
+  }
 
   const dllPlugin = require('./dllPlugin');
   return dllPlugin.dlls ? Object.keys(dllPlugin.dlls) : ['reactBoilerplateDeps'];

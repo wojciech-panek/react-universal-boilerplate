@@ -19,7 +19,7 @@ const assetsPluginInstance = new AssetsPlugin({
 
 const chalk = require('chalk');
 
-const debug = console.log.bind(console, chalk.cyan('[base service]'));
+const debug = console.log.bind(console, chalk.cyan('[base service]')); // eslint-disable-line no-console
 debug(chalk.gray(JSON.stringify(assetsPluginInstance)));
 
 const extractVendorCSSPlugin = new ExtractTextPlugin('vendor.[contenthash].css');

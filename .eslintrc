@@ -9,6 +9,7 @@
   "rules": {
     "new-cap": [2, { "capIsNewExceptions": ["List", "Map"] }],
     "babel/new-cap": [2, { "capIsNewExceptions": ["List", "Map"] }],
+    "react/no-danger": 0,
     "redux-saga/yield-effects": 0, // https://github.com/pke/eslint-plugin-redux-saga/issues/15
     "redux-saga/no-unhandled-errors": 0 // https://github.com/pke/eslint-plugin-redux-saga/issues/15
   },

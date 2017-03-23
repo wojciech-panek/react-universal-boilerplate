@@ -1,8 +1,10 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const path = require('path');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 const httpProxy = require('http-proxy');
+/* eslint-disable import/no-extraneous-dependencies */
 
 const dllPlugin = require('./dllPlugin');
 const renderServiceProxyPort = require('../devRenderService').port;
